@@ -1,0 +1,41 @@
+# docker-compose.yml
+version: '3.8'
+
+services:
+  auth-service:
+    build: .
+    ports:
+      - "3000:3000"
+    environment:
+      - PORT=3000
+      - DB_HOST=mysql
+      - DB_USER=smartstock
+      - DB_PASSWORD=smartstock_password
+      - DB_NAME=smartstock_auth
+      - JWT_SECRET=smartstock_secret_key
+      - JWT_EXPIRES_IN=24h
+    depends_on:
+      - mysql
+    networks:
+      - smartstock-network
+
+  mysql:
+    image: mysql:8.0
+    environment:
+      MYSQL_DATABASE: smartstock_auth
+      MYSQL_USER: smartstock
+      MYSQL_PASSWORD: smartstock_password
+      MYSQL_ROOT_PASSWORD: root_password
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql-data:/var/lib/mysql
+    networks:
+      - smartstock-network
+
+volumes:
+  mysql-data:
+
+networks:
+  smartstock-network:
+    driver: bridge
