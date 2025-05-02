@@ -1,4 +1,5 @@
 // src/app.ts
+import "dotenv/config";
 import express from "express";
 import cors from "cors";
 import helmet from "helmet";
@@ -23,9 +24,9 @@ app.use(express.urlencoded({ extended: true }));
 (async () => {
   try {
     await UserModel.initTable();
-    console.log("Tablas de la base de datos inicializadas");
+    console.log("Tablas inicializadas");
   } catch (error) {
-    console.error("Error al inicializar tablas:", error);
+    console.error("Error:", error);
   }
 })();
 
@@ -42,4 +43,8 @@ app.listen(PORT, () => {
   console.log(`Servidor ejecutándose en el puerto ${PORT}`);
 });
 
+
+if (!process.env.JWT_SECRET) {
+  throw new Error("JWT_SECRET no está definido en las variables de entorno");
+}
 export default app;

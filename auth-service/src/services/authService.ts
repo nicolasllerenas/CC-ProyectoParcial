@@ -47,11 +47,11 @@ export class AuthService {
       }
 
       // Generamos el token JWT
-      const token = jwt.sign(
-        { id: user.id, email: user.email, role: user.role },
-        JWT_SECRET,
-        { expiresIn: JWT_EXPIRES_IN }
-      );
+const token = jwt.sign(
+  { userId: user.id, rol: user.role }, // Payload
+  process.env.JWT_SECRET as string, // Clave secreta (asegúrate de que es string)
+  { expiresIn: "1h" } // Opciones
+);
 
       // Esto retorna el token y los datos del usuario
       return {

@@ -12,7 +12,7 @@ router.post("/login", AuthController.login);
 // Rutas protegidas
 router.get("/profile", authenticateJWT, AuthController.getProfile);
 
-// Ejemplo de ruta con verificación de roles (opcional)
+// Ejemplo de ruta con verificación de roles
 router.get("/admin", authenticateJWT, authorizeRoles("admin"), (req, res) => {
   res.json({ message: "Acceso de administrador concedido" });
 });
