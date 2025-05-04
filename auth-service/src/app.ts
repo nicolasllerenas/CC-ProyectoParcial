@@ -7,6 +7,7 @@ import { SERVER_CONFIG } from "./config/config";
 import { testConnection } from "./config/database";
 import { UserModel } from "./models/User";
 import authRoutes from "./routes/authRoutes";
+import { setupSwagger } from "./config/swagger";
 
 // Cargar variables de entorno
 dotenv.config();
@@ -23,7 +24,8 @@ app.use(express.urlencoded({ extended: true }));
 
 // Rutas
 app.use("/auth", authRoutes);
-
+// Swagger
+setupSwagger(app);
 // Endpoint de prueba
 app.get("/", (req, res) => {
   res.json({
