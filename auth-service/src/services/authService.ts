@@ -1,22 +1,16 @@
 // src/services/authService.ts
-import jwt from "jsonwebtoken";
+import jwt, { JwtPayload, SignOptions } from "jsonwebtoken";
 import { User, UserDTO, UserModel } from "../models/User";
-import { comparePassword } from "../utils/passwordUtils";
-import { JWT_SECRET, JWT_EXPIRES_IN } from "../config/jwt";
+import { JWT_CONFIG } from "../config/config";
 
 export class AuthService {
+  // Registrar un nuevo usuario
   static async registerUser(userData: User): Promise<UserDTO | null> {
     try {
-      // Esto verifica si el usuario ya existe
       const existingUser = await UserModel.findByEmail(userData.email);
-      if (existingUser) {
-        return null;
-      }
+      if (existingUser) return null;
 
-      // Creamos el usuario
       const userId = await UserModel.create(userData);
-
-      // Retornamos los datos del usuario sin la contraseña
       return {
         id: userId,
         nombre: userData.nombre,
@@ -29,31 +23,22 @@ export class AuthService {
     }
   }
 
+  // Login de usuario
   static async loginUser(
     email: string,
     password: string
   ): Promise<{ token: string; user: UserDTO } | null> {
     try {
-      // Buscamos el usuario por email
       const user = await UserModel.findByEmail(email);
-      if (!user) {
-        return null;
-      }
+      if (!user || password !== user.password) return null;
 
-      // Verificamos la contraseña
-      const isPasswordValid = await comparePassword(password, user.password);
-      if (!isPasswordValid) {
-        return null;
-      }
+      // Generar token directamente sin variables intermedias
+      const token = jwt.sign(
+        { userId: user.id, role: user.role },
+        JWT_CONFIG.SECRET,
+        { expiresIn: "1h" } // Usamos valor fijo para simplificar
+      );
 
-      // Generamos el token JWT
-const token = jwt.sign(
-  { userId: user.id, rol: user.role }, // Payload
-  process.env.JWT_SECRET as string, // Clave secreta (asegúrate de que es string)
-  { expiresIn: "1h" } // Opciones
-);
-
-      // Esto retorna el token y los datos del usuario
       return {
         token,
         user: {
@@ -64,11 +49,12 @@ const token = jwt.sign(
         },
       };
     } catch (error) {
-      console.error("Error en el login de usuario:", error);
+      console.error("Error en el login:", error);
       throw error;
     }
   }
 
+  // Obtener perfil de usuario
   static async getUserProfile(userId: number): Promise<UserDTO | null> {
     try {
       return await UserModel.findById(userId);

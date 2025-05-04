@@ -2,40 +2,49 @@
 version: '3.8'
 
 services:
-  auth-service:
-    build: .
-    ports:
-      - "3000:3000"
-    environment:
-      DB_HOST: mysql  # Nombre del servicio de MySQL
-      DB_USER: root
-      DB_PASSWORD: smartstock
-      DB_NAME: auth_db
-      JWT_SECRET: "qwerty123"
-    networks:
-      - smartstock-net  # Misma red para ambos servicios
-    depends_on:
-      - mysql
-
-  mysql:
+  # Servicio de la base de datos MySQL
+  db:
     image: mysql:8.0
+    container_name: auth-db
+    restart: always
     environment:
-      MYSQL_ROOT_PASSWORD: smartstock  # Contraseña root
-      MYSQL_DATABASE: auth_db          # Nombre de la BD
-    networks:
-      - smartstock-net
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD:-password}
+      MYSQL_DATABASE: ${DB_DATABASE:-auth_db}
+    ports:
+      - "${DB_PORT:-3306}:3306"
     volumes:
-      - mysql-data:/var/lib/mysql
-    # Opcional: Healthcheck para esperar a que MySQL esté listo
-    healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
-      interval: 5s
-      timeout: 10s
-      retries: 5
+      - mysql_data:/var/lib/mysql
+    networks:
+      - app-network
 
+  # Servicio de autenticación
+  auth-service:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: auth-service
+    restart: always
+    depends_on:
+      - db
+    ports:
+      - "${PORT:-3000}:3000"
+    environment:
+      - PORT=${PORT:-3000}
+      - DB_HOST=db
+      - DB_USER=${DB_USER:-root}
+      - DB_PASSWORD=${DB_PASSWORD:-password}
+      - DB_DATABASE=${DB_DATABASE:-auth_db}
+      - DB_PORT=3306
+      - JWT_SECRET=${JWT_SECRET:-your_jwt_secret_key}
+      - JWT_EXPIRES_IN=${JWT_EXPIRES_IN:-1h}
+    networks:
+      - app-network
+
+# Volúmenes para persistencia de datos
 volumes:
-  mysql-data:
+  mysql_data:
 
+# Red para la comunicación entre servicios
 networks:
-  smartstock-net:
+  app-network:
     driver: bridge

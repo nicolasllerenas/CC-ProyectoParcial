@@ -1,41 +1,45 @@
 // src/middleware/authMiddleware.ts
 import { Request, Response, NextFunction } from "express";
 import jwt from "jsonwebtoken";
-import { JWT_SECRET } from "../config/jwt";
+import { JWT_CONFIG } from "../config/config";
 
 interface JwtPayload {
-  id: number;
-  email: string;
+  userId: number;
   role: string;
 }
 
+// Middleware para autenticación con JWT
 export const authenticateJWT = (
   req: Request,
   res: Response,
   next: NextFunction
 ): void => {
-  // Esto obtiene el token de autorización del header
+  // Obtener el token de autorización del header
   const authHeader = req.headers.authorization;
 
   if (!authHeader) {
-    res
-      .status(401)
-      .json({ message: "Token de autenticación no proporcionado" });
+    res.status(401).json({
+      success: false,
+      message: "Token de autenticación no proporcionado",
+    });
     return;
   }
 
   const token = authHeader.split(" ")[1]; // Bearer <token>
 
   try {
-    // Verificamos el token
-    const decoded = jwt.verify(token, JWT_SECRET) as JwtPayload;
+    // Verificar el token
+    const decoded = jwt.verify(token, JWT_CONFIG.SECRET) as JwtPayload;
 
-    // Añadimos el usuario decodificado a la request
+    // Añadir el usuario decodificado a la request
     (req as any).user = decoded;
 
     next();
   } catch (error) {
-    res.status(403).json({ message: "Token inválido o expirado" });
+    res.status(403).json({
+      success: false,
+      message: "Token inválido o expirado",
+    });
   }
 };
 
@@ -46,6 +50,7 @@ export const authorizeRoles = (...roles: string[]) => {
 
     if (!user || !roles.includes(user.role)) {
       res.status(403).json({
+        success: false,
         message: "No tienes permiso para acceder a este recurso",
       });
       return;
