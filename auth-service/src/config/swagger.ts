@@ -13,11 +13,15 @@ const options = {
     },
     servers: [
       {
-        url: "http://localhost:3000", // Cambia si usas otro puerto
+        url: "http://localhost:3000",
+        description: "Entorno local"
       },
+      {
+        url: "http://auth-service:3000", 
+      }
     ],
   },
-  apis: ["./src/routes/*.ts"], // O donde defines tus rutas
+  apis: ["./src/routes/*.ts"],
 };
 
 const swaggerSpec = swaggerJsDoc(options);

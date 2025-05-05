@@ -1,50 +1,44 @@
-# docker-compose.yml
 version: '3.8'
 
 services:
-  # Servicio de la base de datos MySQL
   db:
     image: mysql:8.0
     container_name: auth-db
-    restart: always
     environment:
-      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD:-password}
-      MYSQL_DATABASE: ${DB_DATABASE:-auth_db}
+      MYSQL_ROOT_PASSWORD: utec          # Contraseña definida explícitamente
+      MYSQL_DATABASE: bd_api_users       # Nombre de la base de datos
     ports:
-      - "${DB_PORT:-3306}:3306"
+      - "8005:3306"                      # Puerto mapeado: 8005 (host) → 3306 (contenedor)
     volumes:
       - mysql_data:/var/lib/mysql
     networks:
       - app-network
+    healthcheck:                         # Healthcheck para esperar a que MySQL esté listo
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 5s
+      timeout: 10s
+      retries: 5
 
-  # Servicio de autenticación
   auth-service:
-    build:
-      context: .
-      dockerfile: Dockerfile
+    build: .
     container_name: auth-service
-    restart: always
     depends_on:
-      - db
+      db:
+        condition: service_healthy       # Espera a que MySQL esté saludable
     ports:
-      - "${PORT:-3000}:3000"
+      - "3000:3000"
     environment:
-      - PORT=${PORT:-3000}
-      - DB_HOST=db
-      - DB_USER=${DB_USER:-root}
-      - DB_PASSWORD=${DB_PASSWORD:-password}
-      - DB_DATABASE=${DB_DATABASE:-auth_db}
-      - DB_PORT=3306
-      - JWT_SECRET=${JWT_SECRET:-your_jwt_secret_key}
-      - JWT_EXPIRES_IN=${JWT_EXPIRES_IN:-1h}
+      DB_HOST: db                        # Nombre del servicio de Docker (no IP)
+      DB_USER: root
+      DB_PASSWORD: utec
+      DB_DATABASE: bd_api_users
+      JWT_SECRET: your_jwt_secret_key    # Clave secreta para JWT
     networks:
       - app-network
 
-# Volúmenes para persistencia de datos
 volumes:
   mysql_data:
 
-# Red para la comunicación entre servicios
 networks:
   app-network:
     driver: bridge
