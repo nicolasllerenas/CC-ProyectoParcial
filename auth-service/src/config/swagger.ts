@@ -1,6 +1,6 @@
 // src/config/swagger.ts
-import swaggerJsDoc from "swagger-jsdoc";
-import swaggerUi from "swagger-ui-express";
+const swaggerJsDoc = require("swagger-jsdoc");
+const swaggerUi = require("swagger-ui-express");
 import { Express } from "express";
 
 const options = {
