@@ -11,6 +11,9 @@ COPY tsconfig.json ./
 # Instalar dependencias
 RUN npm install
 
+# Dar permisos a tsc
+RUN chmod +x ./node_modules/.bin/tsc
+
 # Copiar código fuente
 COPY . .
 
