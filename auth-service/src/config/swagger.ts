@@ -14,7 +14,7 @@ const servers = [
     description: "Docker Network",
   },
   {
-    url: "http://<IP-PÚBLICA-EC2>:3000", // Reemplazamos con la IP pública de EC2
+    url: "http://3.92.123.196:3000", // Reemplazamos con la IP pública de EC2
     description: "AWS EC2",
   },
 ];

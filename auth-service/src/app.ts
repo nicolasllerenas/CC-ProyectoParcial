@@ -21,7 +21,7 @@ const corsOptions = {
   origin: [
     "http://localhost:3000", // Desarrollo local
     "http://auth-service:3000", // Docker
-    "http://<IP-PÚBLICA-EC2>:3000", // AWS EC2 (reemplaza con la IP pública)
+    "http://3.92.123.196:3000", // AWS EC2 (reemplaza con la IP pública)
   ],
   methods: "GET,POST,PUT,DELETE",
   allowedHeaders: ["Content-Type", "Authorization"],
