@@ -24,6 +24,7 @@ app.use(express.urlencoded({ extended: true }));
 
 // Rutas
 app.use("/auth", authRoutes);
+app.use(cors({ origin: "http://localhost:5173" }));
 // Swagger
 setupSwagger(app);
 // Endpoint de prueba
