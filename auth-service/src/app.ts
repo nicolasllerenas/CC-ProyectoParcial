@@ -16,17 +16,34 @@ dotenv.config();
 const app = express();
 const PORT = SERVER_CONFIG.PORT;
 
+// Configuración de CORS para AWS y Docker
+const corsOptions = {
+  origin: [
+    "http://localhost:3000", // Desarrollo local
+    "http://auth-service:3000", // Docker
+    "http://3.92.123.196:3000", // AWS EC2 (reemplaza con la IP pública)
+  ],
+  methods: "GET,POST,PUT,DELETE",
+  allowedHeaders: ["Content-Type", "Authorization"],
+};
+
 // Middlewares
 app.use(helmet());
-app.use(cors());
+app.use(cors(corsOptions)); 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // Rutas
 app.use("/auth", authRoutes);
+<<<<<<< HEAD
 app.use(cors({ origin: "http://localhost:5173" }));
 // Swagger
+=======
+
+// Swagger UI
+>>>>>>> c47939366d58262e3565eeb98be7a8a2a3d2d99c
 setupSwagger(app);
+
 // Endpoint de prueba
 app.get("/", (req, res) => {
   res.json({
@@ -36,16 +53,12 @@ app.get("/", (req, res) => {
   });
 });
 
-// Inicializar tablas de la base de datos y probar conexión
+// Inicializar tablas y conexión a la base de datos
 (async () => {
   try {
-    // Probar conexión a la base de datos
     await testConnection();
-
-    // Inicializar tablas
     await UserModel.initTable();
 
-    // Iniciar el servidor
     app.listen(PORT, () => {
       console.log(`Servidor ejecutándose en http://localhost:${PORT}`);
     });

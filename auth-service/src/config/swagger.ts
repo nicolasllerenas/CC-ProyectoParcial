@@ -1,7 +1,23 @@
 // src/config/swagger.ts
+import { Express } from "express";
 const swaggerJsDoc = require("swagger-jsdoc");
 const swaggerUi = require("swagger-ui-express");
-import { Express } from "express";
+
+// Aquí configuramos los servidores para diferentes entornos
+const servers = [
+  {
+    url: "http://localhost:3000",
+    description: "Entorno Local",
+  },
+  {
+    url: "http://auth-service:3000",
+    description: "Docker Network",
+  },
+  {
+    url: "http://3.92.123.196:3000", // Reemplazamos con la IP pública de EC2
+    description: "AWS EC2",
+  },
+];
 
 const options = {
   definition: {
@@ -9,17 +25,19 @@ const options = {
     info: {
       title: "API de Autenticación",
       version: "1.0.0",
-      description: "Documentación con Swagger para tu microservicio",
+      description:
+        "Documentación Swagger para el microservicio de autenticación",
     },
-    servers: [
-      {
-        url: "http://localhost:3000",
-        description: "Entorno local"
+    servers,
+    components: {
+      securitySchemes: {
+        bearerAuth: {
+          type: "http",
+          scheme: "bearer",
+          bearerFormat: "JWT",
+        },
       },
-      {
-        url: "http://auth-service:3000", 
-      }
-    ],
+    },
   },
   apis: ["./src/routes/*.ts"],
 };
