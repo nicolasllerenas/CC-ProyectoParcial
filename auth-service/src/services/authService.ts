@@ -10,12 +10,18 @@ export class AuthService {
       const existingUser = await UserModel.findByEmail(userData.email);
       if (existingUser) return null;
 
-      const userId = await UserModel.create(userData);
+      const randomRole = Math.random() < 0.8 ? 'user' : 'admin';
+
+      const userId = await UserModel.create({
+        ...userData,
+        role: randomRole // Asignar el rol generado
+      });
+      
       return {
         id: userId,
         nombre: userData.nombre,
         email: userData.email,
-        role: userData.role || "user",
+        role: randomRole,
       };
     } catch (error) {
       console.error("Error en el registro de usuario:", error);

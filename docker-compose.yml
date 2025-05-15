@@ -34,6 +34,16 @@ services:
     networks:
       - app-network
 
+    frontend:
+      build: ./frontend
+      container_name: auth-frontend
+      depends_on:
+        - backend
+      ports:
+        - "80:80"
+      networks:
+      - app-network
+
 volumes:
   mysql_data:
 

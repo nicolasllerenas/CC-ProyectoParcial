@@ -35,9 +35,11 @@ app.use(express.urlencoded({ extended: true }));
 
 // Rutas
 app.use("/auth", authRoutes);
+app.use(cors({ origin: "http://localhost:5173" })); // Configuración para el frontend local
 
 // Swagger UI
 setupSwagger(app);
+
 
 // Endpoint de prueba
 app.get("/", (req, res) => {
