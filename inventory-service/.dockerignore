@@ -1,0 +1,13 @@
+# Ignorar carpetas comunes de desarrollo
+.idea
+.vscode
+# target
+*.iml
+
+# Ignorar archivos de control de versiones
+.git
+.gitignore
+
+# Ignorar archivos del sistema
+.DS_Store
+Thumbs.db

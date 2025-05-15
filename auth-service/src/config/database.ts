@@ -5,13 +5,13 @@ import dotenv from "dotenv";
 
 dotenv.config();
 
-// Crear el pool de conexiones
+// Creamos un pool de conexiones
 export const pool = mysql.createPool({
   host: process.env.DB_HOST || "localhost",
   user: process.env.DB_USER || "root",
-  password: process.env.DB_PASSWORD || "password",
+  password: process.env.DB_PASSWORD || "utec",
   database: process.env.DB_DATABASE || "auth_db",
-  port: parseInt(process.env.DB_PORT || "3306"),
+  port: parseInt(process.env.DB_PORT || "3306"), // Puerto 3306 para MySQL
   waitForConnections: true,
   connectionLimit: 10,
   queueLimit: 0,
