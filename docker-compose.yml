@@ -1,51 +1,97 @@
+version: '3.8'
+
 services:
-  db:
+  # Base de datos MySQL para Auth
+  auth-db:
     image: mysql:8.0
     container_name: auth-db
     environment:
-      MYSQL_ROOT_PASSWORD: utec          # Contraseña definida explícitamente
-      MYSQL_DATABASE: bd_api_users       # Nombre de la base de datos
+      MYSQL_ROOT_PASSWORD: utec
+      MYSQL_DATABASE: bd_api_users
     ports:
-      - "8005:3306"                      # Puerto mapeado: 8005 (host) → 3306 (contenedor)
+      - "8005:3306"
     volumes:
       - mysql_data:/var/lib/mysql
     networks:
       - app-network
-    healthcheck:                         # Healthcheck para esperar a que MySQL esté listo
+    healthcheck:
       test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
       interval: 5s
       timeout: 10s
       retries: 5
 
+  # Base de datos PostgreSQL para Inventario
+  inventory-db:
+    image: postgres:16
+    container_name: inventory-db
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: utec
+      POSTGRES_DB: inventory_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - app-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 10s
+      retries: 5
+
+  # Servicio de Autenticación
   auth-service:
     build: ./auth-service
     container_name: auth-service
     depends_on:
-      db:
-        condition: service_healthy       # Espera a que MySQL esté saludable
+      auth-db:
+        condition: service_healthy
     ports:
       - "3000:3000"
     environment:
-      DB_HOST: db                        # Nombre del servicio de Docker (no IP)
+      DB_HOST: auth-db
       DB_USER: root
       DB_PASSWORD: utec
       DB_DATABASE: bd_api_users
-      JWT_SECRET: your_jwt_secret_key    # Clave secreta para JWT
+      JWT_SECRET: qwerty123
     networks:
       - app-network
 
-    frontend:
-      build: ./frontend
-      container_name: auth-frontend
-      depends_on:
-        - backend
-      ports:
-        - "80:80"
-      networks:
+  # Servicio de Inventario
+  inventory-service:
+    build:
+      context: ./inventory-service
+      dockerfile: Dockerfile
+    container_name: inventory-service
+    depends_on:
+      inventory-db:
+        condition: service_healthy
+    ports:
+      - "8080:8080"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://inventory-db:5432/inventory_db
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: utec
+      JWT_SECRET: qwerty123
+    networks:
+      - app-network
+
+  # Frontend
+  frontend:
+    build: ./frontend
+    container_name: auth-frontend
+    ports:
+      - "80:80"
+    depends_on:
+      - auth-service
+      - inventory-service
+    networks:
       - app-network
 
 volumes:
   mysql_data:
+  postgres_data:
 
 networks:
   app-network:
