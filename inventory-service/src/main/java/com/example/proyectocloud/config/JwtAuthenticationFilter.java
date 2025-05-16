@@ -26,6 +26,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         
         if (header == null || !header.startsWith("Bearer ")) {
             filterChain.doFilter(request, response);
+            response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Falta el token");
             return;
         }
 

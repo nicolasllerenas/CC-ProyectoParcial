@@ -51,7 +51,7 @@ services:
       DB_PASSWORD: utec
       DB_DATABASE: bd_api_users
       DB_PORT: 3306
-      JWT_SECRET: qwerty123
+      JWT_SECRET: "qwerty123qwerty123qwerty123qwerty123qwerty123qwerty123qwerty123"
     networks:
       - app-network
 
@@ -69,7 +69,7 @@ services:
       SPRING_DATASOURCE_URL: jdbc:postgresql://inventory-db:5432/inventory_db
       SPRING_DATASOURCE_USERNAME: postgres
       SPRING_DATASOURCE_PASSWORD: utec
-      JWT_SECRET: qwerty123
+      JWT_SECRET: "qwerty123qwerty123qwerty123qwerty123qwerty123qwerty123qwerty123"
     networks:
       - app-network
 

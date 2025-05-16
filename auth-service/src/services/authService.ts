@@ -42,7 +42,7 @@ export class AuthService {
       const token = jwt.sign(
         { userId: user.id, role: user.role },
         JWT_CONFIG.SECRET,
-        { expiresIn: "1h" } // Usamos valor fijo para simplificar
+        { algorithm: "HS512", expiresIn: "1h" } 
       );
 
       return {
