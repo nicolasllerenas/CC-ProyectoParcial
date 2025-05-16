@@ -21,7 +21,8 @@ const corsOptions = {
   origin: [
     "http://localhost:3000", // Desarrollo local
     "http://auth-service:3000", // Docker
-    "http://3.92.123.196:3000", // AWS EC2 (reemplaza con la IP pública)
+    "http://3.92.123.196:3000", //EC2
+    "http://3.92.123.196:5173", 
   ],
   methods: "GET,POST,PUT,DELETE",
   allowedHeaders: ["Content-Type", "Authorization"],
@@ -35,7 +36,6 @@ app.use(express.urlencoded({ extended: true }));
 
 // Rutas
 app.use("/auth", authRoutes);
-app.use(cors({ origin: "http://localhost:5173" })); // Configuración para el frontend local
 
 // Swagger UI
 setupSwagger(app);
