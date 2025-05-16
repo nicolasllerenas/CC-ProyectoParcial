@@ -72,17 +72,6 @@ services:
     networks:
       - app-network
 
-  frontend: 
-    build: ./frontend
-    container_name: auth-frontend
-    ports:
-      - "80:80"
-    depends_on:
-      - auth-service
-      - inventory-service
-    networks:
-      - app-network
-
 volumes:
   mysql_data:
   postgres_data:
