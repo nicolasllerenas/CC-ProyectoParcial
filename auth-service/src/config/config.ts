@@ -17,7 +17,7 @@ export const SERVER_CONFIG = {
 
 // Configuración de la base de datos
 export const DB_CONFIG = {
-  HOST: process.env.DB_HOST || "localhost",
+  HOST: process.env.DB_HOST || "3.92.123.196",
   USER: process.env.DB_USER || "root",
   PASSWORD: process.env.DB_PASSWORD || "password",
   DATABASE: process.env.DB_DATABASE || "auth_db",
