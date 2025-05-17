@@ -12,6 +12,8 @@ public class MovimientoInventario {
     private long id;
     @ManyToOne
     @JoinColumn(name = "producto_id")
+    @Column(name = "user_id") 
+    private Long userId; 
     private Producto product_id;
     private Type type;
     private int quantity;
