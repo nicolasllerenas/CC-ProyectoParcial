@@ -1,82 +1,80 @@
 
 services:
-  auth-db:
-    image: mysql:8.0
-    container_name: auth-db
-    environment:
-      MYSQL_ROOT_PASSWORD: utec
-      MYSQL_DATABASE: bd_api_users
-    ports:
-      - "8005:3306"
-    volumes:
-      - mysql_data:/var/lib/mysql
-    networks:
-      - app-network
-    healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "auth-db", "-u", "root", "-p$$MYSQL_ROOT_PASSWORD"]
-      interval: 5s
-      timeout: 10s
-      retries: 5
-
-  inventory-db:
-    image: postgres:16
-    container_name: inventory-db
-    environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: utec
-      POSTGRES_DB: inventory_db
-    ports:
-      - "5432:5432"
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-    networks:
-      - app-network
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres -d inventory_db"]
-      interval: 5s
-      timeout: 10s
-      retries: 5
-
+  # Servicios existentes
   auth-service:
     build: ./auth-service
-    container_name: auth-service
-    depends_on:
-      auth-db:
-        condition: service_healthy
     ports:
       - "3000:3000"
     environment:
       DB_HOST: auth-db
-      DB_USER: root
-      DB_PASSWORD: utec
-      DB_DATABASE: bd_api_users
-      DB_PORT: 3306
-      JWT_SECRET: qwerty123qwerty123qwerty123qwerty123qwerty123qwerty123qwerty123
+      JWT_SECRET: "qwerty123qwerty123qwerty123qwerty123"
     networks:
-      - app-network
+      - smartstock-network
 
   inventory-service:
-    build:
-      context: ./inventory-service
-      dockerfile: Dockerfile
-    container_name: inventory-service
-    depends_on:
-      inventory-db:
-        condition: service_healthy
+    build: ./inventory-service
     ports:
       - "8080:8080"
     environment:
       SPRING_DATASOURCE_URL: jdbc:postgresql://inventory-db:5432/inventory_db
-      SPRING_DATASOURCE_USERNAME: postgres
-      SPRING_DATASOURCE_PASSWORD: utec
-      JWT_SECRET: qwerty123qwerty123qwerty123qwerty123qwerty123qwerty123qwerty123
+      JWT_SECRET: "qwerty123qwerty123qwerty123qwerty123"
     networks:
-      - app-network
+      - smartstock-network
+
+  # Nueva API de Análisis
+  analytics-service:
+    build: ./analytics-service
+    ports:
+      - "8082:8082"
+    environment:
+      MONGO_URI: "mongodb://analytics-db:27017"
+      AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID}
+      AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY}
+      AWS_REGION: "us-east-1"
+    depends_on:
+      analytics-db:
+        condition: service_healthy
+    networks:
+      - smartstock-network
+
+  # Bases de datos
+  auth-db:
+    image: mysql:8.0
+    environment:
+      MYSQL_ROOT_PASSWORD: utec
+    volumes:
+      - mysql_data:/var/lib/mysql
+    networks:
+      - smartstock-network
+
+  inventory-db:
+    image: postgres:16
+    environment:
+      POSTGRES_PASSWORD: utec
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - smartstock-network
+
+  analytics-db:
+    image: mongo:6.0
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 5s
+      timeout: 10s
+      retries: 5
+    networks:
+      - smartstock-network
 
 volumes:
   mysql_data:
   postgres_data:
+  mongo_data:
 
 networks:
-  app-network:
+  smartstock-network:
     driver: bridge
