@@ -17,9 +17,9 @@ export const SERVER_CONFIG = {
 
 // Configuración de la base de datos
 export const DB_CONFIG = {
-  HOST: process.env.DB_HOST || "3.92.123.196",
+  HOST: process.env.DB_HOST || "auth-db",
   USER: process.env.DB_USER || "root",
-  PASSWORD: process.env.DB_PASSWORD || "password",
-  DATABASE: process.env.DB_DATABASE || "auth_db",
+  PASSWORD: process.env.DB_PASSWORD || "utec",
+  DATABASE: process.env.DB_DATABASE || "bd_api_users",
   PORT: parseInt(process.env.DB_PORT || "3306"),
 };

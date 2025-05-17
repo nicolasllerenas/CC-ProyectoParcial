@@ -39,7 +39,14 @@ app.use("/auth", authRoutes);
 
 // Swagger UI
 setupSwagger(app);
+const startServer = async () => {
+  await testConnection(); // Verificar conexión primero
+  app.listen(SERVER_CONFIG.PORT, () => {
+    console.log(`Servidor auth-service en puerto ${SERVER_CONFIG.PORT}`);
+  });
+};
 
+startServer();
 
 // Endpoint de prueba
 app.get("/", (req, res) => {
