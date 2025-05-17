@@ -1,0 +1,88 @@
+version: '3.8'
+
+services:
+
+orquestador:
+  build: .
+  container_name: orquestador-sstock
+  ports:
+    - "8000:8000"  
+  environment:
+    - PYTHONUNBUFFERED=1
+  volumes:
+    - .:/app
+  networks:
+    - app-network
+  depends_on:
+    - auth-service
+    - api-analisis
+    - api-springboot
+
+
+  db:
+    image: mysql:8.0
+    container_name: auth-db
+    environment:
+      MYSQL_ROOT_PASSWORD: utec
+      MYSQL_DATABASE: bd_api_users
+    ports:
+      - "8005:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    networks:
+      - app-network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 5s
+      timeout: 10s
+      retries: 5
+
+  auth-service:
+    build: ./auth-service
+    container_name: auth-service
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - "3000:3000"
+    environment:
+      DB_HOST: db
+      DB_USER: root
+      DB_PASSWORD: utec
+      DB_DATABASE: bd_api_users
+      JWT_SECRET: your_jwt_secret_key
+    networks:
+      - app-network
+  api-springboot:
+    build: ./api-springboot
+    container_name: api-springboot
+    ports:
+      - "8081:8080"  
+    networks:
+      - app-network
+
+  api-analisis:
+    build: ./api-analisis  
+    container_name: api-analisis
+    ports:
+      - "8082:8000"        
+    networks:
+      - app-network
+
+
+  frontend:
+    build: ./frontend
+    container_name: auth-frontend
+    depends_on:
+      - auth-service
+    ports:
+      - "80:80"
+    networks:
+      - app-network
+
+volumes:
+  mysql_data:
+
+networks:
+  app-network:
+    driver: bridge

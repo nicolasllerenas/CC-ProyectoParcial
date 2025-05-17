@@ -1,0 +1,18 @@
+version: '3.8'
+
+services:
+  orquestador:
+    build: .
+    container_name: orquestador-smartstock
+    ports:
+      - "8000:8000"  # Mapea el puerto del contenedor al puerto local
+    environment:
+      - PYTHONUNBUFFERED=1
+    volumes:
+      - .:/app  # Monta el directorio local al contenedor
+    networks:
+      - app-network  # Conectar a una red de Docker personalizada
+
+networks:
+  app-network:
+    driver: bridge
