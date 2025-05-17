@@ -25,9 +25,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         String header = request.getHeader("Authorization");
         
         if (header == null || !header.startsWith("Bearer ")) {
-            filterChain.doFilter(request, response);
+            // Enviar error y detener el filtro
             response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Falta el token");
-            return;
+            return; 
         }
 
         String token = header.substring(7);
@@ -37,8 +37,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 new UsernamePasswordAuthenticationToken(userId, null, null);
             SecurityContextHolder.getContext().setAuthentication(authentication);
         } catch (Exception e) {
+            // Registrar el error y enviar respuesta
+            logger.error("Error al validar el token: " + e.getMessage());
             response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Token inválido");
-            return;
+            return; 
         }
         
         filterChain.doFilter(request, response);

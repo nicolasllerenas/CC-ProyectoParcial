@@ -19,6 +19,11 @@ public class SecurityConfig {
     }
 
     @Bean
+    public JwtAuthenticationFilter jwtAuthenticationFilter() {
+        return new JwtAuthenticationFilter(jwtUtil);
+    }
+
+    @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
             .csrf(csrf -> csrf.disable())
@@ -29,10 +34,14 @@ public class SecurityConfig {
             )
             .exceptionHandling(exceptions -> exceptions
                 .authenticationEntryPoint((request, response, authException) -> {
-                    response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Token inválido");
+                    // Mensaje más descriptivo
+                    String errorMsg = authException.getMessage().contains("Falta el token") 
+                        ? "Falta el token" 
+                        : "Token inválido";
+                    response.sendError(HttpServletResponse.SC_UNAUTHORIZED, errorMsg);
                 })
             )
-            .addFilterBefore(new JwtAuthenticationFilter(jwtUtil), UsernamePasswordAuthenticationFilter.class);
+            .addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
